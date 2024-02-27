@@ -1,38 +1,50 @@
+/* App.css */
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.button-group {
+  margin-bottom: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.text-field-container {
+  padding-top: 2%;
+  width: 40%;
+  margin: 0 auto; /* Center the text field horizontally */
+  text-align: center; /* Center the text within the text field */
+  
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.box-wrapper {
   display: flex;
-  flex-direction: column;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  margin-top: 20px;
+}
+
+
+.lyrics-container {
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  padding: 20px;
+  width: 800px; /* Set a fixed width */
+  margin: 0 auto; /* Center the container horizontally */
+}
+
+.lyric-box {
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  width: 97%; /* Adjusted width to fill the container */
+  height: 30px; /* Adjusted height */
 }
 
-.App-link {
-  color: #61dafb;
+.lyric-text {
+  text-align: left;
+  width: 100%; /* Adjusted width */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
