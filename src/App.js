@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
-import axios from 'axios';
+import './App.css'; 
+import axios from 'axios'; // Imports the axios library which is used for making HTTP requests.
 
-const BingoGame = () => {
-  const [cards, setCards] = useState([]); 
-  const [code, setCode] = useState(''); 
-  const [arrCode, setArrCode] = useState([]);
-  const [error, setError] = useState(''); 
+const BingoGame = () => { // functional components/setter functions
+  const [cards, setCards] = useState([]);  //hold the bingo cards retrieved from the server
+  const [code, setCode] = useState(''); // stores input value for the bingo game code
+  const [arrCode, setArrCode] = useState([]); // holds an array of play card tokens
+  const [error, setError] = useState(''); // holds error messages to be displayed to the user
 
-  const checkWinStatus = async (playcardToken) => {
+  const checkWinStatus = async (playcardToken) => { //sends a request to check if a player has won based on the provided play card token
     console.log("Checking win status: ");
     const url = `http://www.hyeumine.com/checkwin.php?playcard_token=${playcardToken}`;
     try {
@@ -22,7 +22,7 @@ const BingoGame = () => {
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => { //this function checks for the "win status" changes
     const interval = setInterval(() => {
       for(const playcardToken of arrCode) {
         checkWinStatus(playcardToken);
@@ -31,15 +31,15 @@ const BingoGame = () => {
     return () => clearInterval(interval);
   }, [arrCode]); 
 
-  const transpose = (array) => {  
+  const transpose = (array) => {  // transpose number of arrays received from the server
     return array[0].map((_, colIndex) => array.map(row => row[colIndex]));
   };
 
-  const handleAddCard = () => {
+  const handleAddCard = () => { //calls the fetch data, triggered when the "Add Card" button is clicked
     fetchData(); 
   };
 
-  const fetchData = async () => {
+  const fetchData = async () => { // fetches bingo card data from the server based on the entered game code.
     try {
       const response = await axios.get(`http://www.hyeumine.com/getcard.php?bcode=${code}`);
       if(response.data === 0) { 
@@ -59,11 +59,12 @@ const BingoGame = () => {
     }
   };
 
-  const handleGameCodeChange = (e) => {
+  //event handlers
+  const handleGameCodeChange = (e) => { // updates the "code" state with the input value
     setCode(e.target.value); 
   };
 
-  const handleSubmitCode = (e) => {
+  const handleSubmitCode = (e) => { //fetch data based on the entered game code
     e.preventDefault(); 
     fetchData();
   };
