@@ -1,101 +1,110 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { Button, ButtonGroup, TextField } from '@mui/material';
-import { Box } from '@mui/system';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import axios from 'axios';
 
-// Data for different singers
-const SingersData = [
-  { id: 'first', color: '#7768AE', name: 'First Singer' },
-  { id: 'second', color: '#60cf92', name: 'Second Singer' },
-  { id: 'third', color: '#5eafe0', name: 'Third Singer' },
-  { id: 'fourth', color: '#e77499', name: 'Fourth Singer'},
-];
+const BingoGame = () => {
+  const [cards, setCards] = useState([]); 
+  const [code, setCode] = useState(''); 
+  const [arrCode, setArrCode] = useState([]);
+  const [error, setError] = useState(''); 
 
-const CompleteLyrics = ({ singer }) => { //responsible for managing and displaying lyrics submission.
-  const [lyrics, setLyrics] = useState([]); //Utilizes useState to manage state variables lyrics and inputValue
-  const [inputValue, setInputValue] = useState('');
-
-  const handleInputChange = (event) => { // Updates inputValue state based on user input.
-    setInputValue(event.target.value);
-  };
-
-  const handleSubmit = () => { //Adds entered lyric to the lyrics state when submitted.
-    if (inputValue.trim() !== '') {
-      setLyrics((prevLyrics) => [
-        ...prevLyrics,
-        { id: Date.now(), lyric: inputValue, color: singer.color },
-      ]);
-      setInputValue('');
+  const checkWinStatus = async (playcardToken) => {
+    console.log("Checking win status: ");
+    const url = `http://www.hyeumine.com/checkwin.php?playcard_token=${playcardToken}`;
+    try {
+      const response = await axios.get(url);
+      console.log(`${playcardToken}:`, response.data);
+      if(response.data === 1) {
+        alert("Congratulations! You won with Card token: " + playcardToken);
+      }
+    } catch (error) {
+      console.error(`Error fetching data for ${playcardToken}:`, error);
     }
   };
 
-  const handleKeyDown = (event) => { //Submits lyric when Enter key is pressed.
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSubmit();
+  useEffect(() => { 
+    const interval = setInterval(() => {
+      for(const playcardToken of arrCode) {
+        checkWinStatus(playcardToken);
+      } 
+    }, 1000); 
+    return () => clearInterval(interval);
+  }, [arrCode]); 
+
+  const transpose = (array) => {  
+    return array[0].map((_, colIndex) => array.map(row => row[colIndex]));
+  };
+
+  const handleAddCard = () => {
+    fetchData(); 
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://www.hyeumine.com/getcard.php?bcode=${code}`);
+      if(response.data === 0) { 
+        setError('Game code not found, please try a different one.');
+        return; 
+      }
+      setError('');
+      const card = response.data.card;
+      const numbersArray = [card.B, card.I, card.N, card.G, card.O];
+      const transposedArray = transpose(numbersArray);
+      const playcardToken = response.data.playcard_token;
+      
+      setCards(prevCards => [...prevCards, { numbers: transposedArray, token: playcardToken }]);
+      setArrCode(prevArrCode => [...prevArrCode, playcardToken]);
+    } catch (err) {
+        console.error(err);
     }
   };
 
-  return ( //Renders a textfield for user input and displays entered lyrics.
-    <div>
-      <div className="text-field-container" >
-        <TextField
-          fullWidth
-          variant="outlined"
-          label={`Enter Lyrics for ${singer.name}`}
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
+  const handleGameCodeChange = (e) => {
+    setCode(e.target.value); 
+  };
+
+  const handleSubmitCode = (e) => {
+    e.preventDefault(); 
+    fetchData();
+  };
+
+  return (
+    <div className="container">
+      <form onSubmit={handleSubmitCode} className="form">
+        <label htmlFor="gameCode"><strong>Bingo Game Code:</strong></label>
+        <input
+          id="gameCode"
+          type="text"
+          value={code}
+          onChange={handleGameCodeChange}
         />
-      </div>
-      <div className="box-wrapper">
-        <Box className="lyrics-container">
-          {/* Display lyrics including the currently typed text */}
-          {lyrics.map((submission) => (
-            <div key={submission.id} className="lyrics-submission">
-              <div className="lyric-box" style={{ backgroundColor: submission.color }}>
-                <div className="lyric-text">{submission.lyric}</div>
-              </div>
+        <button type="submit">Submit</button>
+        <button type="button" onClick={handleAddCard}>Add Card</button>
+      </form>
+      {error && <p className="error">{error}</p>} 
+      <div className="card">
+        {cards.map((card, cardIndex) => (
+          <div key={cardIndex} className="bingo-card"> 
+            <div className="bingo-header">
+              {['B', 'I', 'N', 'G', 'O'].map((letter, index) => (
+                <div key={index} className="bingo-header-cell">{letter}</div>
+              ))}
             </div>
-          ))}
-          {/* Display currently typed text */}
-          {inputValue && (
-            <div className="lyrics-submission">
-              <div className="lyric-box" style={{ backgroundColor: singer.color }}>
-                <div className="lyric-text">{inputValue}</div>
+            {card.numbers.map((column, columnIndex) => (
+              <div key={columnIndex} className="bingo-column">
+                {column.map((number, numberIndex) => (
+                  <div key={numberIndex} className="bingo-cell">
+                    {number}
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
-        </Box>
+            ))}
+            <div className="bingo-card-id">Token: {card.token}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-// Main App component we set up routing using React Router.
-const App = () => {
-  return (
-    <Router>
-      <div className="App">
-        <h1>Complete the Lyrics</h1>
-        <ButtonGroup variant="contained">
-          {SingersData.map((singer) => ( //this maps over SingersData to render buttons for each singer.
-            <Button key={singer.id} style={{ backgroundColor: singer.color }}>
-              <Link to={`/${singer.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{singer.name}</Link>
-            </Button>
-          ))}
-        </ButtonGroup>
-
-        <Routes>
-          {SingersData.map((singer) => ( //Defines Routes for each singer's page, rendering the CompleteLyrics component for each.
-            <Route key={singer.id} path={`/${singer.id}`} element={<CompleteLyrics singer={singer} />} />
-          ))}
-          <Route path="/*" element={<Navigate to="/not-found" />} />
-        </Routes>
-      </div>
-    </Router>
-  );
-};
-
-export default App;
+export default BingoGame;

@@ -1,50 +1,102 @@
-/* App.css */
-
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.button-group {
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+}
+
+.container {
+  text-align: center;
+  max-width: 1200px;
+  margin: 20px auto;
+}
+
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   margin-bottom: 20px;
 }
 
-.text-field-container {
-  padding-top: 2%;
-  width: 40%;
-  margin: 0 auto; /* Center the text field horizontally */
-  text-align: center; /* Center the text within the text field */
-  
+
+label {
+  margin-right: 10px;
+  font-weight: bold; 
 }
 
-.box-wrapper {
+button {
+  margin: 20px 10px;
+  padding: 12px 24px;
+  background-color: #008080;
+  color: #ffffff;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #005757;
+}
+
+.card {
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center;
+  flex-wrap: wrap;
   margin-top: 20px;
 }
 
-
-.lyrics-container {
+.bingo-card {
+  border: 2px solid #ff6f61;
+  width: 300px;
+  margin: 10px;
   border-radius: 10px;
-  border: 2px solid #ccc;
-  padding: 20px;
-  width: 800px; /* Set a fixed width */
-  margin: 0 auto; /* Center the container horizontally */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.lyric-box {
+.bingo-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
+  background: #ff6f61;
+  color: #ffffff;
+  padding: 10px 0;
+}
+
+.bingo-header-cell, .bingo-cell {
+  border-right: 1px solid #ffffff;
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.bingo-header-cell:last-child, .bingo-cell:last-child {
+  border-right: none;
+}
+
+.bingo-column {
+  display: flex;
+}
+
+.bingo-cell {
+  background: #ffffff;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.bingo-cell:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.05);
+}
+
+.bingo-card-id {
+  background-color: #ffdb58;
+  color: #333;
   padding: 10px;
-  border-radius: 5px;
-  width: 97%; /* Adjusted width to fill the container */
-  height: 30px; /* Adjusted height */
+  font-size: 14px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
-
-.lyric-text {
-  text-align: left;
-  width: 100%; /* Adjusted width */
-}
-
