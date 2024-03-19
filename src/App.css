@@ -1,55 +1,30 @@
-/* App.css */
 .App {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  margin-top: 50px;
+  justify-content: center;
+  height: 100vh;
 }
 
-input[type="text"] {
-  margin: 10px;
-  padding: 10px;
-  border: 2px solid #3498DB; /* Blue border */
-  border-radius: 5px;
-  font-size: 16px;
+.input-container {
+  margin-bottom: 20px;
 }
 
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  background-color: #3498DB; /* Blue */
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.input-container input {
+  padding: 8px;
+  margin-right: 10px;
 }
 
-button:hover {
-  background-color: #2980B9; /* Darker blue on hover */
+.input-container button {
+  padding: 8px 16px;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
 }
 
 .output {
+  text-align: center;
   margin-top: 20px;
-  font-size: 18px;
-  text-align: left; /* Align text to the left */
-}
-
-.route-box {
-  border: 2px solid #ccc; /* Gray border */
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px; /* Add space between route boxes */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow effect */
-}
-
-.route {
-  margin-bottom: 10px; /* Add space between routes */
-}
-
-.output span {
-  padding: 2px 5px;
-  border-radius: 3px;
 }

@@ -1,87 +1,141 @@
-// App.js
-import React, { useState } from 'react';
-import routesData from './routes.json';
-import './App.css';
+import React, { useState } from "react"; 
+import routesData from "./routes.json"; // import routes data which contains the jeep routes
+import "./App.css";
 
-const App = () => {
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
+// Function to validate Jeep Codes 
+const validateInput = (inputStr) => {
+  // Split the input by comma
+  const codes = inputStr.split(",");
 
-  const handleInputChange = (event) => {
-    setInput(event.target.value);
-  };
-
-  const findPlaces = () => {
-    const codes = input.split(',');
-    let result = '';
-    codes.forEach((code) => {
-      const trimmedCode = code.trim();
-      if (routesData.hasOwnProperty(trimmedCode)) {
-        const places = routesData[trimmedCode].map(place => (
-          `<span style="color: ${getPlaceColor(place)}">${place}</span>`
-        )).join(' <-> ');
-        result += `<div class="route-box"><div class="route">${trimmedCode} => ${places}</div></div>`;
-      }
-    });
-    setOutput(result);
-  };
-
-  const getPlaceColor = (place) => {
-    switch (place) {
-      case 'Alpha':
-        return '#FF5733';
-      case 'Bravo':
-        return '#3498DB'; 
-      case 'Charlie':
-        return '#9B59B6'; 
-      case 'Delta':
-        return '#1ABC9C'; 
-      case 'Echo':
-        return '#E74C3C'; 
-      case 'Foxtrot':
-        return '#27AE60'; 
-      case 'Golf':
-        return '#F1C40F'; 
-      case 'Hotel':
-        return '#E67E22'; 
-      case 'India':
-        return '#8E44AD'; 
-      case 'Juliet':
-        return '#2C3E50';
-      case 'Kilo':
-        return '#16A085'; 
-      case 'Lima':
-        return '#FFA07A'; 
-      case 'Mike':
-        return '#00FFFF'; 
-      case 'November':
-        return '#9400D3'; 
-      case 'Oscar':
-        return '#FF6347'; 
-      case 'Papa':
-        return '#FF4500'; 
-      case 'Quebec':
-        return '#00FF00'; 
-      case 'Romeo':
-        return '#8A2BE2'; 
-      default:
-        return '#000'; 
+  for (let code of codes) {
+    // Check if each code matches the pattern if it is two digits, followed by a letter
+    if (!/^\d{2}[A-Za-z]$/.test(code.trim())) {
+      return false;
     }
+  }
+  return true;
+};
+
+// Function to find common places between two routes provided as arrays
+const findCommonPlacesBetweenRoutes = (route1, route2) => {
+  const commonPlaces = [];
+  for (let place of route1) {
+    if (route2.includes(place)) {
+      commonPlaces.push(place);
+    }
+  }
+  return commonPlaces;
+};
+
+// Function to generate hash code for a given string
+const hashCode = (str) => {
+  let hash = 0;
+  if (str.length === 0) return hash;
+  for (let i = 0; i < str.length; i++) {
+    const chr = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0; 
+  }
+  return hash;
+};
+
+// Function to colorize text, this applies color to text based on the common places
+const colorize = (text, commonPlacesMap) => {
+  let color = ""; // Default color
+  for (const pair in commonPlacesMap) {
+    if (commonPlacesMap.hasOwnProperty(pair)) {
+      const commonPlaces = commonPlacesMap[pair];
+      if (commonPlaces.includes(text)) {
+        color = getColorForPair(pair);
+        break; // Once we find a match, we can break the loop
+      }
+    }
+  }
+  return <span style={{ color }}>{text}</span>;
+};
+
+// Function to get color for a pair of Jeep Codes
+const getColorForPair = (pair) => {
+  // Generate a unique color based on the pair
+  const hash = hashCode(pair);
+  const color = "#" + Math.abs(hash).toString(16).substring(0, 6); // Convert hash code to hex color
+  return color;
+};
+
+// main function 
+const JeepRouteApp = () => { 
+  const [input, setInput] = useState(""); // store input
+  const [output, setOutput] = useState(""); // store output 
+  const [error, setError] = useState(""); // store error message
+
+  const handleInputChange = (e) => { // updates the input state as the user types in the input field
+    setInput(e.target.value);
   };
 
-  return (
+  const handleSubmit = () => { // function basically handles the submission
+    // Validates the input, generates common places map for each pair of jeep codes
+    if (!validateInput(input)) {
+      setError(
+        "Invalid input. Jeep Code format should be: 2 digits followed by a letter (e.g., 01A)"
+      );
+      setOutput(""); // outputs the routes for each jeep code
+      return;
+    }
+
+    // Split input by comma and strip whitespace
+    const jeepCodes = input.split(",").map((code) => code.trim());
+
+    // Generate common places map for each pair of Jeep Codes
+    const commonPlacesMap = {};
+    for (let i = 0; i < jeepCodes.length; i++) {
+      for (let j = i + 1; j < jeepCodes.length; j++) {
+        const code1 = jeepCodes[i];
+        const code2 = jeepCodes[j];
+        const route1 = routesData[code1];
+        const route2 = routesData[code2];
+        const commonPlaces = findCommonPlacesBetweenRoutes(route1, route2);
+        commonPlacesMap[`${code1}${code2}`] = commonPlacesMap[`${code2}${code1}`] = commonPlaces;
+      }
+    }
+
+    // Output routes for each Jeep Code
+    const routesOutput = jeepCodes.map((code) => {
+      const currentRoute = routesData[code];
+
+      return (
+        <div key={code}>
+          {code} =>{" "}
+          {currentRoute.map((place, index) => (
+            <React.Fragment key={place}>
+              {index > 0 && " <-> "} 
+              {colorize(place, commonPlacesMap)}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    });
+
+    // Set output
+    setOutput(routesOutput);
+    setError("");
+  };
+
+  return ( //the look for the app
     <div className="App">
-      <h1>Jeep Route Finder</h1>
-      <input
-        type="text"
-        placeholder="Enter Jeep Code(s)"
-        value={input}
-        onChange={handleInputChange}
-      />
-      <button onClick={findPlaces}>Find Route</button>
-      <div className="output" dangerouslySetInnerHTML={{ __html: output }} />
+      <h1>Jeep Route App</h1>
+      <div className="input-container">
+        <input
+          type="text"
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Enter Jeep Code(s) separated by comma"
+        />
+        <button onClick={handleSubmit}>Submit</button>
+      </div>
+      {error && <div className="error">{error}</div>}
+      <div className="output">{output}</div>
     </div>
   );
 };
 
-export default App;
+export default JeepRouteApp;
